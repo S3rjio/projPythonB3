@@ -217,7 +217,7 @@ class DataProcessor:
         if df.empty:
             return alerts
 
-        latest = df.iloc[-1]
+        latest = df.iloc[0]
 
         # PM2.5 check
         if latest["pm2_5"] >= THRESHOLDS["pm2_5"]["danger"]:
@@ -278,7 +278,7 @@ def render_dashboard():
 
     # Add calculated metrics
     df["health_score"] = DataProcessor.calculate_custom_health_index(df)
-    latest = df.iloc[-1]
+    latest = df.iloc[0]
 
     # Alert Box Section
     alerts = DataProcessor.detect_alerts(df)

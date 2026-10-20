@@ -1,0 +1,3 @@
+correction bug qualité air:
+changer  "latest = df.iloc[-1]" en "lqtest = df.iloc[0]"
+car avec -1 on pointe vers le futur donc pas de valeur de qualite d air.
