@@ -5,7 +5,7 @@ from classes.classWeatherAPI import WeatherAPIClient
 from classes.classData import DataProcessor
 ###Rajout fonction export pdf
 import io
-from rapport_pdf import create_report
+from fonctions.rapport_pdf import create_report
 import datetime
 ###FIN
 

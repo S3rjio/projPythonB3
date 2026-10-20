@@ -1,0 +1,9 @@
+services:
+  mon-app:
+    build: .
+    container_name: projpythonb3
+    ports:
+      - "8501:8501"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
