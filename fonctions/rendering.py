@@ -3,19 +3,28 @@ import plotly.express as px
 import streamlit as st
 from classes.classWeatherAPI import WeatherAPIClient
 from classes.classData import DataProcessor
-###Rajout fonction export pdf
 import io
 from fonctions.rapport_pdf import create_report
 import datetime
-###FIN
+from typing import Any, Dict, List
+import requests
+from fonctions.search_city import search_cities
+
 
 DEFAULT_CITIES = {
+    "Grenoble": {"lat": 45.1786, "lon": 5.7147},    
     "Paris": {"lat": 48.8566, "lon": 2.3522},
     "Lyon": {"lat": 45.7640, "lon": 4.8357},
     "Marseille": {"lat": 43.2965, "lon": 5.3698},
     "London": {"lat": 51.5074, "lon": -0.1278},
     "Madrid": {"lat": 40.4168, "lon": -3.7038}
 }
+
+#Mise en cache de la recherche de ville pour 1 heure (les erreurs réseau ne sont pas mises en cache)
+@st.cache_data(ttl=3600, show_spinner=False)
+def cached_city_search(query: str) -> List[Dict[str, Any]]:
+    return search_cities(query)
+
 
 def render_dashboard():
     """
@@ -31,10 +40,35 @@ def render_dashboard():
 
     # Sidebar Options
     st.sidebar.header("⚙️ Configuration")
-    selected_city = st.sidebar.selectbox("Sélectionner une ville", list(DEFAULT_CITIES.keys()))
-    mock_mode = st.sidebar.checkbox("Mode Déconnecté / Data Mocked", value=False)
 
-    city_info = DEFAULT_CITIES[selected_city]
+    query = st.sidebar.text_input("🔍 Rechercher une ville", placeholder="Ex : Grenoble, Tokyo...")
+
+    results: List[Dict[str, Any]] = []
+    search_error = False
+    if query:
+        try:
+            results = cached_city_search(query)
+        except requests.exceptions.RequestException:
+            search_error = True
+
+    if results:
+        options = {
+            f"{r['name']} ({', '.join(filter(None, [r.get('admin2'), r.get('admin1'), r.get('country')]))})": r
+            for r in results
+        }
+        choice = st.sidebar.selectbox("Résultats de la recherche", list(options.keys()))
+        place = options[choice]
+        selected_city = place["name"]
+        city_info = {"lat": place["latitude"], "lon": place["longitude"]}
+    else:
+        if search_error:
+            st.sidebar.warning("Recherche indisponible (hors ligne ?). Liste par défaut affichée.")
+        elif query:
+            st.sidebar.warning("Aucune ville trouvée.")
+        selected_city = st.sidebar.selectbox("Sélectionner une ville", list(DEFAULT_CITIES.keys()))
+        city_info = DEFAULT_CITIES[selected_city]
+
+    mock_mode = st.sidebar.checkbox("Mode Déconnecté / Data Mocked", value=False)
     
     # Fetch Data
     with st.spinner(f"Chargement des données pour {selected_city}..."):
