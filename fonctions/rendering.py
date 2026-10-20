@@ -1,8 +1,8 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-from classWeatherAPI import WeatherAPIClient
-from classData import DataProcessor
+from classes.classWeatherAPI import WeatherAPIClient
+from classes.classData import DataProcessor
 ###Rajout fonction export pdf
 import io
 from rapport_pdf import create_report
