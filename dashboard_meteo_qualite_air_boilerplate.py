@@ -12,6 +12,11 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+###Rajout fonction export pdf
+import io
+from rapport_pdf import create_report
+###FIN
+
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -22,7 +27,8 @@ DEFAULT_CITIES = {
     "Lyon": {"lat": 45.7640, "lon": 4.8357},
     "Marseille": {"lat": 43.2965, "lon": 5.3698},
     "London": {"lat": 51.5074, "lon": -0.1278},
-    "Madrid": {"lat": 40.4168, "lon": -3.7038}
+    "Madrid": {"lat": 40.4168, "lon": -3.7038},
+    "Grenoble": {"lat": 45.1715, "lon": 5.7223}
 }
 
 # Thresholds for alerts (WHO Guidelines)
@@ -107,11 +113,11 @@ class WeatherAPIClient:
 
         weather_url = (
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
-            f"&current_weather=true&hourly=temperature_2m,relativehumidity_2m,surface_pressure,windspeed_10m"
+            f"&current_weather=true&hourly=temperature_2m,relativehumidity_2m,surface_pressure,windspeed_10m&timezone=auto"
         )
         air_quality_url = (
             f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}"
-            f"&hourly=pm10,pm2_5,nitrogen_dioxide,ozone,sulphur_dioxide,carbon_monoxide,us_aqi"
+            f"&hourly=pm10,pm2_5,nitrogen_dioxide,ozone,sulphur_dioxide,carbon_monoxide,us_aqi&timezone=auto"
         )
 
         try:
@@ -266,7 +272,8 @@ def render_dashboard():
     mock_mode = st.sidebar.checkbox("Mode Déconnecté / Data Mocked", value=False)
 
     city_info = DEFAULT_CITIES[selected_city]
-    
+
+
     # Fetch Data
     with st.spinner(f"Chargement des données pour {selected_city}..."):
         raw_data = client.fetch_weather_and_air_quality(city_info["lat"], city_info["lon"], mock_mode=mock_mode)
@@ -275,6 +282,20 @@ def render_dashboard():
     if df.empty:
         st.error("Impossible de récupérer ou d'afficher les données.")
         return
+
+### Bouton de téléchargement du rapport PDF (lit la base, aucune requête API)
+    try:
+        buffer = io.BytesIO()
+        create_report(selected_city, city_info["lat"], city_info["lon"], buffer)
+        st.sidebar.download_button(
+            label="📄 Télécharger le rapport PDF",
+            data=buffer.getvalue(),
+            file_name=f"rapport_meteo_{selected_city}_{datetime.datetime.now():%Y%m%d_%H%M}.pdf",
+            mime="application/pdf",
+        )
+    except LookupError as e:
+        st.sidebar.caption(f"Rapport PDF indisponible : {e}")
+### FIN
 
     # Add calculated metrics
     df["health_score"] = DataProcessor.calculate_custom_health_index(df)
