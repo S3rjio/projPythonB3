@@ -7,4 +7,5 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 if __name__ == "__main__":
     # Standard Execution runs Streamlit application
+    ##pip install streamlit, reportlab##
     render_dashboard()

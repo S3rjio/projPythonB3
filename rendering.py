@@ -3,7 +3,11 @@ import plotly.express as px
 import streamlit as st
 from classWeatherAPI import WeatherAPIClient
 from classData import DataProcessor
-
+###Rajout fonction export pdf
+import io
+from rapport_pdf import create_report
+import datetime
+###FIN
 
 DEFAULT_CITIES = {
     "Paris": {"lat": 48.8566, "lon": 2.3522},
@@ -55,6 +59,20 @@ def render_dashboard():
                 st.warning(f"⚠️ **ATTENTION** : {alert['message']}")
     else:
         st.success("✅ Qualité de l'air et conditions météorologiques stables. Aucune alerte active.")
+
+    ### Bouton de téléchargement du rapport PDF (lit la base, aucune requête API)
+    try:
+        buffer = io.BytesIO()
+        create_report(selected_city, city_info["lat"], city_info["lon"], buffer)
+        st.sidebar.download_button(
+            label="📄 Télécharger le rapport PDF",
+            data=buffer.getvalue(),
+            file_name=f"rapport_meteo_{selected_city}_{datetime.datetime.now():%Y%m%d_%H%M}.pdf",
+            mime="application/pdf",
+        )
+    except LookupError as e:
+        st.sidebar.caption(f"Rapport PDF indisponible : {e}")
+    ### FIN
 
     # KPI Summary Cards
     st.markdown("---")
