@@ -1,3 +1,0 @@
-Python == 3.14.7
-Streamlit == 1.66.0
-Reportlab == 5.0.1
