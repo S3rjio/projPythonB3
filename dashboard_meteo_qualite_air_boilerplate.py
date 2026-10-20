@@ -325,18 +325,28 @@ def render_dashboard():
 
     with tab3:
         st.subheader("Localisation de la station de suivi")
+        aqi = latest["us_aqi"]
         map_df = pd.DataFrame([{
             "lat": city_info["lat"],
             "lon": city_info["lon"],
             "city": selected_city,
-            "aqi": latest["us_aqi"]
+            "aqi": 0 if pd.isna(aqi) else int(aqi)
         }])
         fig_map = px.scatter_map(
-            map_df, lat="lat", lon="lon", hover_name="city", hover_data=["aqi"],
-            color_discrete_sequence=["fuchsia"], zoom=9, height=400
+            map_df, lat="lat", lon="lon",
+            hover_name="city", hover_data=["aqi"],
+            text="city",                      # affiche le nom sur la carte
+            color_discrete_sequence=["fuchsia"],
+            height=450,
         )
-        fig_map.update_layout(map_style="open-street-map")
-        st.plotly_chart(fig_map, use_container_width=True)
+        fig_map.update_traces(marker=dict(size=18), textposition="top center")
+        fig_map.update_layout(
+            map_style="open-street-map",
+            map_center={"lat": city_info["lat"], "lon": city_info["lon"]},
+            map_zoom=10,
+            margin=dict(l=0, r=0, t=0, b=0),
+        )
+        st.plotly_chart(fig_map, use_container_width=True, key=f"map_{selected_city}")
 
 
 class TestDashboardModules(unittest.TestCase):
