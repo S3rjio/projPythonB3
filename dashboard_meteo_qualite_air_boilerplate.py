@@ -331,11 +331,11 @@ def render_dashboard():
             "city": selected_city,
             "aqi": latest["us_aqi"]
         }])
-        fig_map = px.scatter_mapbox(
+        fig_map = px.scatter_map(
             map_df, lat="lat", lon="lon", hover_name="city", hover_data=["aqi"],
             color_discrete_sequence=["fuchsia"], zoom=9, height=400
         )
-        fig_map.update_layout(mapbox_style="open-street-map")
+        fig_map.update_layout(map_style="open-street-map")
         st.plotly_chart(fig_map, use_container_width=True)
 
 

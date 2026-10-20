@@ -1,3 +1,6 @@
 correction bug qualité air:
 changer  "latest = df.iloc[-1]" en "lqtest = df.iloc[0]"
 car avec -1 on pointe vers le futur donc pas de valeur de qualite d air.
+
+correction bug carte:
+dx.scatter_mapbox n est plus utilisé il faut remplacer tous les "mapbox" pqr "map"
