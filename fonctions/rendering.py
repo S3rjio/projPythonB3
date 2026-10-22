@@ -157,8 +157,10 @@ def render_dashboard():
 
     with tab2:
         st.subheader("Concentration des Polluants Clés (µg/m³)")
+        # 24 dernières heures : on s'arrête à l'heure en cours (on écarte les prévisions)
+        df_24h = df[df["datetime"] <= latest["datetime"]].tail(24)
         fig_air = px.bar(
-            df.tail(24), x="datetime", y=["pm2_5", "pm10", "nitrogen_dioxide"],
+            df_24h, x="datetime", y=["pm2_5", "pm10", "nitrogen_dioxide"],
             barmode="group",
             title="Exposition aux polluants sur les 24 dernières heures"
         )
