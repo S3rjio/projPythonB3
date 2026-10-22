@@ -20,6 +20,29 @@ DEFAULT_CITIES = {
     "Madrid": {"lat": 40.4168, "lon": -3.7038}
 }
 
+# Échelle US AQI : (borne haute incluse, libellé, couleur)
+AQI_LEVELS = [
+    (50, "Bon", "#00a65a"),
+    (100, "Modéré", "#f2c200"),
+    (150, "Mauvais (sensibles)", "#ff7e00"),
+    (200, "Mauvais", "#e60000"),
+    (300, "Très mauvais", "#8f3f97"),
+    (float("inf"), "Dangereux", "#7e0023"),
+]
+
+# Un dict {libellé: couleur}, avec une entrée grise si l'AQI est absent
+AQI_COLORS = {label: color for _, label, color in AQI_LEVELS}
+AQI_COLORS["Inconnu"] = "#9e9e9e"
+
+
+def get_aqi_category(aqi) -> str:
+    """Retourne le libellé de la catégorie AQI, ou 'Inconnu' si la valeur manque."""
+    if pd.isna(aqi):
+        return "Inconnu"
+    for limit, label, _ in AQI_LEVELS:
+        if aqi <= limit:
+            return label
+
 #Mise en cache de la recherche de ville pour 1 heure (les erreurs réseau ne sont pas mises en cache)
 @st.cache_data(ttl=3600, show_spinner=False)
 def cached_city_search(query: str) -> List[Dict[str, Any]]:
@@ -147,13 +170,15 @@ def render_dashboard():
             "lat": city_info["lat"],
             "lon": city_info["lon"],
             "city": selected_city,
-            "aqi": 0 if pd.isna(aqi) else int(aqi)
+            "aqi": None if pd.isna(aqi) else int(aqi),
+            "Qualité de l'air": get_aqi_category(aqi),
         }])
         fig_map = px.scatter_map(
             map_df, lat="lat", lon="lon",
             hover_name="city", hover_data=["aqi"],
-            text="city",                      # affiche le nom sur la carte
-            color_discrete_sequence=["fuchsia"],
+            text="city",
+            color="Qualité de l'air",
+            color_discrete_map=AQI_COLORS,
             height=450,
         )
         fig_map.update_traces(marker=dict(size=18), textposition="top center")
