@@ -1,5 +1,4 @@
 import logging
-from classes.classTestModules import TestDashboardModules
 from fonctions.rendering import render_dashboard
 
 # Configure logging

@@ -40,3 +40,5 @@ penser a dl la biblio reportlab nécessaire pour l'export pdf
 Affichage du jour actuel au lieu du J+5
 
 18)Mise à jour des notes
+
+19)Correction du module des tests
