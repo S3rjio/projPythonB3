@@ -1,6 +1,8 @@
 from typing import Dict, Any, List
 import pandas as pd
 import numpy as np
+import datetime
+from typing import Dict, Any, List, Optional
 
 
 # Thresholds for alerts (WHO Guidelines)
@@ -35,6 +37,22 @@ class DataProcessor:
         return df
 
     @staticmethod
+    def get_current_row(df: pd.DataFrame, utc_offset_seconds: Optional[int] = None) -> pd.Series:
+        """
+        Returns the measurement of the current hour: the last row that is not in the future.
+        `utc_offset_seconds` is the city's offset to UTC (given by the API);
+        if None (mock mode), the computer's local time is used.
+        """
+        if utc_offset_seconds is None:
+            now = datetime.datetime.now()
+        else:
+            now = (datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+                   + datetime.timedelta(seconds=utc_offset_seconds))
+
+        past = df[df["datetime"] <= now]
+        return past.iloc[-1] if not past.empty else df.iloc[0]
+
+    @staticmethod
     def calculate_custom_health_index(df: pd.DataFrame) -> pd.Series:
         """
         Calculates a custom composite Comfort/Health Score (0-100 scale).
@@ -53,13 +71,9 @@ class DataProcessor:
         return score.clip(0, 100).round(1)
 
     @staticmethod
-    def detect_alerts(df: pd.DataFrame) -> List[Dict[str, str]]:
-        """Scans current/recent data points for threshold violations."""
+    def detect_alerts(latest: pd.Series) -> List[Dict[str, str]]:
+        """Checks one measurement row (the current hour) for threshold violations."""
         alerts = []
-        if df.empty:
-            return alerts
-
-        latest = df.iloc[0]
 
         # PM2.5 check
         if latest["pm2_5"] >= THRESHOLDS["pm2_5"]["danger"]:

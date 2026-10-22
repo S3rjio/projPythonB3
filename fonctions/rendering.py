@@ -104,10 +104,11 @@ def render_dashboard():
 
     # Add calculated metrics
     df["health_score"] = DataProcessor.calculate_custom_health_index(df)
-    latest = df.iloc[0]
+    utc_offset = raw_data.get("weather", {}).get("utc_offset_seconds")
+    latest = DataProcessor.get_current_row(df, utc_offset)
 
     # Alert Box Section
-    alerts = DataProcessor.detect_alerts(df)
+    alerts = DataProcessor.detect_alerts(latest)
     if alerts:
         for alert in alerts:
             if alert["level"] == "danger":
