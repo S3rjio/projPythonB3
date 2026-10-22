@@ -1,9 +1,42 @@
-correction bug qualité air:
+01)Début du projet
+
+02)Correction bug qualité air:
 changer  "latest = df.iloc[-1]" en "lqtest = df.iloc[0]"
 car avec -1 on pointe vers le futur donc pas de valeur de qualite d air.
 
-correction bug carte:
+03)Correction bug carte:
 dx.scatter_mapbox n est plus utilisé il faut remplacer tous les "mapbox" pqr "map"
 
+04)Modification de la carte
+centrage de la carte sur la ville choisie
 
+05)Nettoyage de l'architecture
+Découpage du code principal et organinastion selon leurs fonctions.
+
+06)Intégration du module d'export pdf
 penser a dl la biblio reportlab nécessaire pour l'export pdf
+
+07)Remise au propre de l'arborescence du projet
+
+08)Debug appel depuis les dossiers
+
+09)Préparation des requirements
+
+10)Ajout du dockering
+
+11)Ajout de la fonctionnalité de recherche de ville + correction du bug d'horodatage lors de l'export du rapport en pdf
+
+12)Retrait de la duplication du fichiers requirements
+
+13)Ajout du fichier .gitignore
+
+14)Ajout de la fonctionnalité de l'affichage du point de la ville en fonction de la qualité de l'air
+
+15)Correction du bug lié au décalage horaire de la température
+
+16)Affichage des données delon l'heure actuelle (au lieu de minuit)
+
+17)Correction de l'affichage du graphique de la qualité de l'air
+Affichage du jour actuel au lieu du J+5
+
+18)Mise à jour des notes
