@@ -104,7 +104,7 @@ def render_dashboard():
 
     # Add calculated metrics
     df["health_score"] = DataProcessor.calculate_custom_health_index(df)
-    latest = df.iloc[0]
+    latest = df.iloc[datetime.now().hour]
 
     # Alert Box Section
     alerts = DataProcessor.detect_alerts(df)
